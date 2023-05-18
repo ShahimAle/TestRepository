@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Botonera Vertical</title>
+    <link rel="stylesheet" href="css\styles_visualizar-mapa.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+  <div class="container">
+    <section style="padding:20px" class="section_filtros">
+      <h1>Filtros Rutas</h1>
+        <select>
+          <option value="opcion1">Rutas Centro</option>
+          <option value="opcion2">Rutas Pocitos</option>
+          <option value="opcion3">Rutas Sayago</option>
+        </select>
+
+          <label>
+            <input type="checkbox" name="option1" value="opcion1"> Ver todas las rutas
+          </label>
+          <br><br><br>
+
+      <h1>Filtros Contenedores</h1>
+              <select>
+          <option value="opcion1">Contenedores de Vidrios</option>
+          <option value="opcion2">Contenedores de Reciclaje</option>
+          <option value="opcion3">Contenedores de Materiales Peligrosos</option>
+        </select>
+
+    <div class="sidebar">
+      <button>Ocultar Todo</button><br>
+      <button>Ocultar Contenedores</button><br>
+      <button>Ocultar Rutas</button><br>
+    </div>
+    </section>
+
+
+  <div class="content">
+
+    
+  <div id="map"></div>
+  <div id="mouse-coordinates"></div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script>
+    var map = L.map('map').setView([51.505, -0.09], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+      maxZoom: 18,
+    }).addTo(map);
+
+    var mouseCoordinates = document.getElementById('mouse-coordinates');
+
+    map.on('mousemove', function(e) {
+      var latlng = e.latlng;
+      mouseCoordinates.innerHTML = 'Latitud: ' + latlng.lat.toFixed(6) + ', Longitud: ' + latlng.lng.toFixed(6);
+    });
+  </script>
+
+
+
+
+<div id="mapid">
+  
+  <script>
+    // Crea un mapa de Leaflet
+    var mymap = L.map('mapid').setView([-33,-56], 7.4);
+
+    // Agrega una capa de mapa base
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+    }).addTo(mymap);
+
+    // Definir una capa de marcadores
+    var markersLayer = L.layerGroup().addTo(mymap);
+
+    // Función que actualiza las ubicaciones
+    function actualizarUbicaciones() {
+      // Realiza una petición a la API de Traccar para obtener los datos de la ubicación de los dispositivos
+      fetch('http://186.48.102.65:8082/api/positions', {
+        method: 'GET',
+      headers: {
+          'Authorization': 'Basic ' + btoa('proyecto2023Aegis.Solutions@gmail.com:N6nJXhTTVNmEExZPb@F@eAJq')
+        }
+
+      })
+        .then(response => response.json())
+        .then(data => { 
+          // Elimina los marcadores existentes
+          markersLayer.clearLayers();
+          
+          // Crea un icono para los marcadores
+          var markerIcon = L.icon({
+            iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+          });
+
+          // Dibuja los marcadores en el mapa
+          data.forEach(function(position) {
+            L.marker([position.latitude, position.longitude], {icon: markerIcon})
+              .bindPopup(position.deviceName + '<br/>' + position.address)
+              .addTo(markersLayer);
+          });
+        
+        });
+    }
+
+    // Llama a la función para actualizar las ubicaciones cada 5 segundos
+    setInterval(actualizarUbicaciones, 5000);
+
+</script>
+
+</div>
+    </div>
+  </div>
+</body>
+</html>
